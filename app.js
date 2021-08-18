@@ -3,6 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require('cors');
 const axios = require('axios');
+const serveStatic = require('serve-static')
+const path = require('path')
 
 axios.defaults.headers.common['X-Authorization'] = process.env.API_KEY;
 axios.defaults.baseURL = process.env.API_URL;
@@ -11,6 +13,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
+
+//here we are configuring dist to serve app files
+app.use('/', serveStatic(path.join(__dirname, '/dist')));
 
 const MAIN_PATH = "/henko-api/v1/"
 
@@ -69,6 +74,11 @@ app.get(MAIN_PATH + "property/:propertyId", async (req, res) => {
     });
 
 });
+
+// this * route is to serve project on different page routes except root `/`
+app.get(/.*/, function (req, res) {
+    res.sendFile(path.join(__dirname, '/dist/index.html'))
+})
 
 
 // set port, listen for requests
